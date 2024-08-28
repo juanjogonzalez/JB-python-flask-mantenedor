@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes</title>
+</head>
+<body>
+
+    <a href="{{ url_for ('clientes.new') }}">Nuevo Cliente</a>
+    <a href="#" onclick="exportar_clientes_xls()">Exportar a Excel</a>
+
+    <table style="width: 100%;">
+        <thead>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Active?</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </thead>
+        <tbody>
+            {% if obj %}
+                {% for item in obj %}
+                <tr>
+                    <td>{{item.id}}</td>
+                    <td>{{item.name}}</td>
+                    <td>{{item.email}}</td>
+                    <td>{{item.active}}</td>
+                    <td><a href="{{ url_for('clientes.edit', id_cliente=item.id) }}">Editar</a></td>
+                </tr>
+                {%endfor%}
+            {%else%}
+                <tr>
+                    <td colspan="4">NO HAY CLIENTES</td>
+                </tr>
+            {%endif%}
+        </tbody>
+    </table>
+</body>
+
+<script>
+
+    function exportar_clientes_xls() {
+
+        var url = "{{ url_for('clientes.ajax_exportar_clientes_xls') }}";
+
+        let request = new XMLHttpRequest();
+        request.open('GET', url, true);
+        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        request.responseType = 'blob';
+        request.onload = function (e) {
+            if (this.status === 200) {
+                let filename = "";
+                let disposition = request.getResponseHeader('Content-Disposition');
+                // check if filename is given
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                    let matches = filenameRegex.exec(disposition);
+                    if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                }
+                let blob = this.response;
+                if (window.navigator.msSaveOrOpenBlob) {
+                    window.navigator.msSaveBlob(blob, filename);
+                }
+                else {
+                    let downloadLink = window.document.createElement('a');
+                    let contentTypeHeader = request.getResponseHeader("Content-Type");
+                    downloadLink.href = window.URL.createObjectURL(new Blob([blob], {type: contentTypeHeader}));
+                    downloadLink.download = filename;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                }
+            } else {
+                alert('Descarga falló')
+            }
+        };
+
+        request.send(null);
+
+    }
+
+</script>
+
+</html>

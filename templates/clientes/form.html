@@ -1,0 +1,19 @@
+
+<form method="POST" action="{{ url_for ('clientes.edit', id_cliente = 0) }}">
+
+    <input type="hidden" name="id_cliente" value="{% if obj %} {{obj.id}} {%endif%}">
+    {% if obj %}
+        <p>EDITAR CLIENTE</p>
+    {%else%}
+        <p>NUEVO CLIENTE</p>
+    {%endif%}
+
+    <p>Nombre: <input type="text" name="name" id="name" value="{%if obj%} {{obj.name}} {%endif%}"></p>
+    <p>Email: <input type="text" name="email" id="email" value="{% if obj %} {{obj.email}} {%endif%}"></p>
+
+    <p>
+        <button type="submit" id="btnGuardar">Guardar</button>
+        <a href="{{ url_for('clientes.index') }}">Volver</a>
+    </p>
+
+</form>
