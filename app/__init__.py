@@ -30,19 +30,22 @@ def create_app():
 
 
         #Inicializar extensiones
-        from app.extensions import db
+        from app.extensions import db, login_manager
+
 
         #Inicializar la base de datos
         db.init_app(app)
+        login_manager.init_app(app)
         
         #Ejecutar consulta de prueba a la BD
         db.session.execute(text('SELECT 1'))
         print('\n\n-- Conexión correcta a Mysql! -- \n\n')
 
         #Registrar las rutas
-        from app.routes import pages_bp
+        from app.routes import auth_bp, pages_bp
         from app.routes.clientes import clientes_bp
 
+        app.register_blueprint(auth_bp)
         app.register_blueprint(pages_bp)
         app.register_blueprint(clientes_bp)
 
